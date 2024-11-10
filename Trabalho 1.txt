@@ -1,0 +1,24 @@
+O trabalho consiste de uma interface que contenha os seguintes Widgets com as seguintes funcionalidades:
+
+- widgets MaterialApp, Scaffold, AppBar, Icon, Image, NetworkImage, Container, Row, Column, Text, ElevatedButton
+
+- widget Navigator
+
+- SingleChildScrollView. Não dei, veja como usar. Coloque uma grande coluna dentro de um deles.
+
+- faça pelo menos três páginas, que devem ser acessadas por pelo menos três ações diferentes (tipo três botões diferentes)
+
+- deve ter uma opção no App para o usuário escolher a cor "seed" do app. Redesenhe o app com a nova cor escolhida. Use o pacote https://pub.dev/packages/flutter_colorpicker
+
+- use pelo menos dois tamanhos de fonte com pelo menos duas fontes diferentes
+
+Não é necessário nenhum "back-end". Só mostrar que, quando um botão, por exemplo, é apertado, algo acontece.
+
+Grupo de no máximo duas pessoas. Faça alguma coisa bem legal. Não faça apenas para ganhar a nota. 
+
+Como é impossível eu corrigir todos os trabalhos e conferir tudo, vou fazer um questionário para vocês se auto-avaliarem. Durante a aula, vejo "pessoalmente" os trabalhos de alguns grupos (sorteados aleatoriamente).
+
+No AVA, entreguem apenas um zip (não RAR, não outra coisa) com os diretórios 'assets' e 'lib'. Coloque os nomes completos dos membros do grupo no nome do arquivo, sem acentos.  Separe os membros do grupo por um '-'. 
+
+
+
