@@ -54,13 +54,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   late final List<TileData> tilesData;
 
-  // Adicionar novos controllers para as novas animações
   late final AnimationController rotationController;
   late final AnimationController slideController;
   late final AnimationController fadeController;
   late final AnimationController colorController;
   
-  // Adicionar novas animações
   late final Animation<double> rotationAnimation;
   late final Animation<Offset> slideAnimation;
   late final Animation<double> fadeAnimation;
@@ -70,7 +68,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     
-    // Initialize tiles data with Google Fonts
     tilesData = [
       TileData(
         backgroundColor: Colors.red,
@@ -124,7 +121,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       )
     ).toList();
 
-    // Inicializar novos controllers
     rotationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -145,7 +141,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       vsync: this,
     );
     
-    // Inicializar novas animações
     rotationAnimation = Tween<double>(begin: 0, end: pi).animate(rotationController);
     slideAnimation = Tween<Offset>(begin: Offset.zero, end: const Offset(0.2, 0)).animate(slideController);
     fadeAnimation = Tween<double>(begin: 1, end: 0.5).animate(fadeController);
@@ -188,11 +183,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     for (int index in sequence) {
       await Future.delayed(const Duration(milliseconds: 200));
       setState(() {
-        // Não limpar a sequência, apenas marcar o índice atual
-        sequence = [...sequence]; // Força atualização do estado
+        sequence = [...sequence];
       });
       
-      // Ativar todas as animações apenas para o tile atual
       if (sequence.last == index) {
         rotationController.forward();
         slideController.forward();
@@ -203,7 +196,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       
       await Future.delayed(const Duration(milliseconds: 200));
       
-      // Reverter todas as animações
       if (sequence.last == index) {
         rotationController.reverse();
         slideController.reverse();
@@ -224,14 +216,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     setState(() {
       playerSequence.add(index);
       
-      // Ativar todas as animações apenas para o tile atual
       rotationController.forward().then((_) => rotationController.reverse());
       slideController.forward().then((_) => slideController.reverse());
       fadeController.forward().then((_) => fadeController.reverse());
       colorController.forward().then((_) => colorController.reverse());
       controllers[index].forward().then((_) => controllers[index].reverse());
       
-      // Add the word to history
       wordHistory.add(tilesData[index].word);
       
       if (playerSequence.length == sequence.length) {
@@ -295,7 +285,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
       body: Row(
         children: [
-          // Game Area
           Expanded(
             flex: 2,
             child: Column(
@@ -386,7 +375,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
-          // Word History Panel
           Expanded(
             flex: 1,
             child: Container(
