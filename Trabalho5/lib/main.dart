@@ -54,6 +54,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   late final List<TileData> tilesData;
 
+  // Adicionar novos controllers para as novas animações
+  late final AnimationController rotationController;
+  late final AnimationController slideController;
+  late final AnimationController fadeController;
+  late final AnimationController colorController;
+  
+  // Adicionar novas animações
+  late final Animation<double> rotationAnimation;
+  late final Animation<Offset> slideAnimation;
+  late final Animation<double> fadeAnimation;
+  late final Animation<Color?> colorAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -111,6 +123,33 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         CurvedAnimation(parent: controller, curve: Curves.easeInOut),
       )
     ).toList();
+
+    // Inicializar novos controllers
+    rotationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    
+    slideController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    
+    fadeController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    
+    colorController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    
+    // Inicializar novas animações
+    rotationAnimation = Tween<double>(begin: 0, end: pi).animate(rotationController);
+    slideAnimation = Tween<Offset>(begin: Offset.zero, end: const Offset(0.2, 0)).animate(slideController);
+    fadeAnimation = Tween<double>(begin: 1, end: 0.5).animate(fadeController);
+    colorAnimation = ColorTween(begin: Colors.blue, end: Colors.red).animate(colorController);
   }
 
   @override
@@ -118,6 +157,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     for (var controller in controllers) {
       controller.dispose();
     }
+    rotationController.dispose();
+    slideController.dispose();
+    fadeController.dispose();
+    colorController.dispose();
     super.dispose();
   }
 
@@ -143,9 +186,30 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     playerSequence.clear();
     
     for (int index in sequence) {
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 200));
+      setState(() {
+        // Não limpar a sequência, apenas marcar o índice atual
+        sequence = [...sequence]; // Força atualização do estado
+      });
+      
+      // Ativar todas as animações apenas para o tile atual
+      if (sequence.last == index) {
+        rotationController.forward();
+        slideController.forward();
+        fadeController.forward();
+        colorController.forward();
+      }
       await controllers[index].forward();
-      await Future.delayed(const Duration(milliseconds: 300));
+      
+      await Future.delayed(const Duration(milliseconds: 200));
+      
+      // Reverter todas as animações
+      if (sequence.last == index) {
+        rotationController.reverse();
+        slideController.reverse();
+        fadeController.reverse();
+        colorController.reverse();
+      }
       await controllers[index].reverse();
     }
     
@@ -159,6 +223,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     
     setState(() {
       playerSequence.add(index);
+      
+      // Ativar todas as animações apenas para o tile atual
+      rotationController.forward().then((_) => rotationController.reverse());
+      slideController.forward().then((_) => slideController.reverse());
+      fadeController.forward().then((_) => fadeController.reverse());
+      colorController.forward().then((_) => colorController.reverse());
       controllers[index].forward().then((_) => controllers[index].reverse());
       
       // Add the word to history
@@ -249,27 +319,50 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         children: List.generate(4, (index) {
                           return GestureDetector(
                             onTap: () => onTileTapped(index),
-                            child: ScaleTransition(
-                              scale: scales[index],
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: tilesData[index].backgroundColor,
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      blurRadius: 5,
-                                      offset: const Offset(0, 3),
+                            child: AnimatedBuilder(
+                              animation: Listenable.merge([
+                                scales[index],
+                                rotationController,
+                                slideController,
+                                fadeController,
+                                colorController,
+                              ]),
+                              builder: (context, child) {
+                                final isActive = sequence.isNotEmpty && sequence.last == index;
+                                return Transform.rotate(
+                                  angle: isActive ? rotationAnimation.value : 0,
+                                  child: SlideTransition(
+                                    position: isActive ? slideAnimation : const AlwaysStoppedAnimation<Offset>(Offset.zero),
+                                    child: FadeTransition(
+                                      opacity: isActive ? fadeAnimation : const AlwaysStoppedAnimation<double>(1.0),
+                                      child: ScaleTransition(
+                                        scale: scales[index],
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: isActive 
+                                              ? colorAnimation.value ?? tilesData[index].backgroundColor
+                                              : tilesData[index].backgroundColor,
+                                            borderRadius: BorderRadius.circular(15),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.2),
+                                                blurRadius: 5,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              tilesData[index].word,
+                                              style: tilesData[index].style,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    tilesData[index].word,
-                                    style: tilesData[index].style,
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
                           );
                         }),
